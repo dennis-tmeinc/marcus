@@ -1,0 +1,120 @@
+{
+  "adminPass" : "$1$FSv129aZ$mxz2rtbcPtQgcIWUDFu0o1",
+  "adminUser" : "admin",
+  "alertL1" : 30,
+  "alertN1" : 30,
+  "alertN2" : 30,
+  "aoiNames" : [ "floor", "door", "chair" ],
+  "br_ops" : [ 1000000, 2000000, 3000000 ],
+  "cameras" : [ {
+    "bitrate" : 1000000,
+    "enable" : true,
+    "fps" : 10,
+    "ip" : "192.168.2.1",
+    "name" : "camera1",
+    "resolution" : "720x480",
+    "roc" : {
+      "bottom" : 1,
+      "left" : 0,
+      "right" : 1,
+      "top" : 0
+    },
+    "roomIndex" : 0
+  }, {
+    "bitrate" : 2000000,
+    "enable" : true,
+    "fps" : 30,
+    "ip" : "192.168.2.2",
+    "name" : "camera2",
+    "resolution" : "1280x720",
+    "roc" : {
+      "bottom" : 0.8,
+      "left" : 0.3,
+      "right" : 0.7,
+      "top" : 0.2
+    },
+    "roomIndex" : 0
+  }, {
+    "bitrate" : 3000000,
+    "enable" : false,
+    "fps" : 30,
+    "ip" : "192.168.2.3",
+    "name" : "camera3",
+    "resolution" : "1280x720",
+    "roc" : {
+      "bottom" : 1,
+      "left" : 0,
+      "right" : 1,
+      "top" : 0
+    },
+    "roomIndex" : 0
+  } ],
+  "encPasswd" : "wifi-password",
+  "eth0Ip" : "192.168.1.10",
+  "eth0Mask" : "255.255.255.0",
+  "eth0Proto" : 1,
+  "eth1Ip" : "192.168.2.10",
+  "eth1Mask" : "255.255.255.0",
+  "eth1Proto" : 0,
+  "fps_ops" : [ 10, 20, 30 ],
+  "gateway" : "192.168.1.1",
+  "gatewayDev" : 0,
+  "instituteId" : "ABC001",
+  "locationId" : "LOC001",
+  "peuIp" : "",
+  "res_ops" : [ "720x480", "1280x720", "1920x1080" ],
+  "roomTypes" : [ "Bathroom", "Bedroom", "Kitchen", "Living Room", "Gym", "Cafeteria", "Guest Room", "Hallway", "Others" ],
+  "rooms" : [ {
+    "alg" : {
+      "alpha" : true,
+      "container" : false,
+      "containerQ" : false,
+      "disappear" : false,
+      "statue" : false,
+      "wall2Floor" : true
+    },
+    "name" : "New Room 1",
+    "type" : "Bedroom"
+  }, {
+    "alg" : {
+      "alpha" : false,
+      "container" : false,
+      "containerQ" : true,
+      "disappear" : true,
+      "statue" : true,
+      "wall2Floor" : false
+    },
+    "name" : "New Room 2",
+    "type" : "Bedroom"
+  }, {
+    "alg" : {
+      "alpha" : false,
+      "container" : false,
+      "containerQ" : true,
+      "disappear" : true,
+      "statue" : false,
+      "wall2Floor" : false
+    },
+    "name" : "New Room 3",
+    "type" : "Bedroom"
+  }, {
+    "alg" : {
+      "alpha" : false,
+      "container" : false,
+      "containerQ" : false,
+      "disappear" : false,
+      "statue" : false,
+      "wall2Floor" : false
+    },
+    "name" : "New Room 4",
+    "type" : "Bedroom"
+  } ],
+  "serverIp" : "192.168.42.100",
+  "ssid" : "wifi-ssid",
+  "timezone" : "US/Central",
+  "timezones" : [ "UTC", "Canada/Atlantic", "Canada/Central", "Canada/Eastern", "Canada/Mountain", "Canada/Newfoundland", "Canada/Pacific", "Canada/Saskatchewan", "Canada/Yukon", "US/Alaska", "US/Aleutian", "US/Arizona", "US/Central", "US/Eastern", "US/East-Indiana", "US/Hawaii", "US/Indiana-Starke", "US/Michigan", "US/Mountain", "US/Pacific", "US/Pacific-New", "US/Samoa", "Mexico/BajaNorte", "Mexico/BajaSur", "Mexico/General" ],
+  "unitId" : "UNIT001",
+  "wifiIp" : "192.168.3.10",
+  "wifiMask" : "255.255.255.0",
+  "wifiProto" : 0
+}

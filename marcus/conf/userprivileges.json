@@ -1,0 +1,58 @@
+{
+  "privileges" : [ "EditSuperpower", "EditPower", "EditAdmin", "EditSensor", "EditUser", "EditSelf", "EditCompany", "EditUnit", "ConfigureUnit", "ConfigureROC", "ConfigureAOI" ],
+  "user_privileges" : {
+    "superpower" : {
+      "ConfigureAOI" : true,
+      "ConfigureROC" : true,
+      "ConfigureUnit" : true,
+	  "EditSuperpower": true,
+      "EditAdmin" : true,
+      "EditCompany" : true,
+      "EditPower" : true,
+      "EditSelf" : true,
+      "EditSensor" : true,
+      "EditUnit" : true,
+      "EditUser" : true
+    },  
+    "power" : {
+      "ConfigureAOI" : true,
+      "ConfigureROC" : true,
+      "ConfigureUnit" : true,
+      "EditAdmin" : true,
+      "EditCompany" : true,
+      "EditPower" : false,
+      "EditSelf" : true,
+      "EditSensor" : true,
+      "EditUnit" : true,
+      "EditUser" : true
+    },
+    "admin" : {
+      "ConfigureAOI" : true,
+      "ConfigureROC" : true,
+      "ConfigureUnit" : true,
+      "EditAdmin" : false,
+      "EditCompany" : false,
+      "EditPower" : false,
+      "EditSelf" : true,
+      "EditSensor" : true,
+      "EditUnit" : true,
+      "EditUser" : true
+    },
+    "sensor" : {
+      "ConfigureAOI" : true,
+      "ConfigureROC" : true,
+      "ConfigureUnit" : true,
+      "EditAdmin" : false,
+      "EditCompany" : false,
+      "EditPower" : false,
+      "EditSelf" : true,
+      "EditSensor" : false,
+      "EditUnit" : true,
+      "EditUser" : false
+    },
+    "user" : {
+      "EditSelf" : true
+    }
+  },
+  "usertypes" : [ "superpower", "power", "admin", "sensor", "user" ]
+}

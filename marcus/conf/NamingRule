@@ -1,0 +1,4 @@
+Naming Rule
+	All IDs must be a string of UTF-8 encoded, can be a maximum of 128 bytes, and cannot contain ., $, #, [, ], /, @ or ASCII control characters 0-31 or 127.
+	
+	

@@ -1,0 +1,9 @@
+[ 
+"Unknown", 
+"STANDING", 
+"LYING_ON_FLOOR", 
+"LYING_ON_BED", 
+"SITTING", 
+"WALKING", 
+"FALLEN"
+]

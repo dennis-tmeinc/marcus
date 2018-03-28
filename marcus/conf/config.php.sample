@@ -1,0 +1,29 @@
+<?php
+	// SQL server
+	$sql_server="localhost" ;
+	$sql_user="admin" ;
+	$sql_password="" ;
+	$sql_database="marcusmaindb" ;
+	
+	// List of timezone: http://php.net/manual/en/timezones.php
+	$timezone = "America/Toronto" ;
+	
+	// bing map
+	$map_credentials="AnC6aHa2J8jWAluq14HQu6HDH1cDshGtPEPrYiotanIf-q6ZdoSiVGd96wzuDutw" ;
+
+	// session 
+	$session_path= "session";
+	$session_timeout=900 ;
+	
+	// cache dir
+	$cache_dir = "cache";
+	
+	// marcus service (by Tongrui)
+	$marcus_service = "http://localhost:48002/MService" ;
+	$mservice_callback = "http://localhost:80/marcus/marcusevent.php" ;
+
+	// script/excutable to create/remove com
+	$ms_new    = "C:\\MarcusServerApps\\setup.exe create " ;
+	$ms_clean  = "C:\\MarcusServerApps\\setup.exe remove " ;
+	
+?>
