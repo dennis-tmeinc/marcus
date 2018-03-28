@@ -1,5 +1,5 @@
 <?php
-// firebase.php 	-	firebase supporting function
+// firebase.php	- firebase RESTful function
 // By Dennis Chen @ TME	 - 2017-08-02
 // Copyright 2017 Toronto MicroElectronics Inc.
 // reference:
@@ -55,34 +55,35 @@ function firebase_idtoken()
 //		$method    : 'GET', 'PUT' or 'POST'
 function firebase_rest( $marcuspath, $content=NULL, $method=NULL )
 {
+	$marcusurl =  "https://tme-marcus.firebaseio.com/${marcuspath}.json" ;
 	$idtoken = firebase_idtoken();
 	if( !empty( $idtoken )) {
-		$http_opt = array();
-		if( isset( $content ) ) {
-			$http_opt['method'] = 'PUT' ;
-			$http_opt['header'] = 'Content-type: application/json' ;
-			if( is_string( $content ) && strlen( $content ) > 1 && ( $content[0] == '{' || $content[0] == '[' ) ) {
-				$http_opt['content'] = $content  ;
-			}
-			else {
-				$http_opt['content'] = json_encode( $content ) ;
-			}
-		}
-		if( !empty( $method ) ) {
-			$http_opt['method'] = $method ;
-		}
-			
-		$marcusurl =  "https://tme-marcus.firebaseio.com/${marcuspath}.json?auth=$idtoken" ;
-		if( empty( $http_opt ) ) {
-			return file_get_contents( $marcusurl );
+		$marcusurl .= "?auth=$idtoken" ;
+	}
+	
+	$http_opt = array();
+	if( isset( $content ) ) {
+		$http_opt['method'] = 'PUT' ;
+		$http_opt['header'] = 'Content-type: application/json' ;
+		if( is_string( $content ) && strlen( $content ) > 1 && ( $content[0] == '{' || $content[0] == '[' ) ) {
+			$http_opt['content'] = $content  ;
 		}
 		else {
-			return file_get_contents( $marcusurl, false, stream_context_create(array(
-				'http' => $http_opt 
-			)));
+			$http_opt['content'] = json_encode( $content ) ;
 		}
 	}
-	return false ;
+	if( !empty( $method ) ) {
+		$http_opt['method'] = $method ;
+	}
+		
+	if( empty( $http_opt ) ) {
+		return file_get_contents( $marcusurl );
+	}
+	else {
+		return file_get_contents( $marcusurl, false, stream_context_create(array(
+			'http' => $http_opt 
+		)));
+	}
 }
 
 // firebase_event
@@ -92,57 +93,59 @@ function firebase_rest( $marcuspath, $content=NULL, $method=NULL )
 //     	$callback   : callback function when event available
 function firebase_event( $marcuspath, $callback = NULL )
 {
+	$marcusurl =  "https://tme-marcus.firebaseio.com/${marcuspath}.json" ;
 	$idtoken = firebase_idtoken();
 	if( !empty( $idtoken )) {
-		$marcusurl =  "https://tme-marcus.firebaseio.com/${marcuspath}.json?auth=$idtoken" ;
-		$fevent = fopen( $marcusurl, 'r', false, stream_context_create(array(
-			'http' => array(
-				'method' => 'GET' ,
-				'header' => 'Accept: text/event-stream' 
-				)
-		)));
-		
-		if( $fevent ) {
-			$event = NULL ;
-			$data = NULL ;
-			// read one event
-			while( ($line=fgets( $fevent, 1000000 )) !== false ) {
-				$line = trim($line);
-				if( strlen($line)<=0 ) {
-					// empty line, end of data?
-					if( !empty($event) && !empty( $data ) ) {
-						if( is_callable($callback) ) {
-							if( !call_user_func( $callback, $event, trim($data) ) ) {
-								break;
-							}
-						}
-						else {
-							fclose( $fevent );
-							return $data ;
+		$marcusurl .= "?auth=$idtoken" ;
+	}
+	
+	$fevent = fopen( $marcusurl, 'r', false, stream_context_create(array(
+		'http' => array(
+			'method' => 'GET' ,
+			'header' => 'Accept: text/event-stream' 
+			)
+	)));
+	
+	if( $fevent ) {
+		$event = NULL ;
+		$data = NULL ;
+		// read one event
+		while( ($line=fgets( $fevent, 1000000 )) !== false ) {
+			$line = trim($line);
+			if( strlen($line)<=0 ) {
+				// empty line, end of data?
+				if( !empty($event) && !empty( $data ) ) {
+					if( is_callable($callback) ) {
+						if( !call_user_func( $callback, $event, trim($data) ) ) {
+							break;
 						}
 					}
-					$data = NULL ;
-					$event = NULL ;
-					set_time_limit( 100 );
+					else {
+						fclose( $fevent );
+						return $data ;
+					}
 				}
-				else if( !empty($data) ) {
-					// append more data
-					$data .= $line ;
-				}
-				else if( substr( $line, 0, 6) === "event:" ) {
-					$event = trim( substr( $line, 6 ));
-				}
-				else if( substr( $line, 0, 5) === "data:" ) {
-					$data = substr( $line, 5 );
-				}
-				else {
-					$data = NULL ;
-					$event = NULL ;
-				}
+				$data = NULL ;
+				$event = NULL ;
+				set_time_limit( 100 );
 			}
-			fclose( $fevent );
-			return true ;
+			else if( !empty($data) ) {
+				// append more data
+				$data .= $line ;
+			}
+			else if( substr( $line, 0, 6) === "event:" ) {
+				$event = trim( substr( $line, 6 ));
+			}
+			else if( substr( $line, 0, 5) === "data:" ) {
+				$data = substr( $line, 5 );
+			}
+			else {
+				$data = NULL ;
+				$event = NULL ;
+			}
 		}
+		fclose( $fevent );
+		return true ;
 	}
 	return false ;
 }

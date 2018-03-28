@@ -149,11 +149,24 @@ function flushResp( $resp )
 	flush();
 }
 
+function updateCamImg( $cmd )
+{
+	global $unitid, $camera, $ts ;
+	
+	// update img ts
+	$mservice_lockfile = session_lock( "i$cmd.$unitid.$camera" ) ;
+	ftruncate( $mservice_lockfile, 0 );
+	fwrite($mservice_lockfile, $ts);
+	session_unlock( $mservice_lockfile );
+}
+
 switch ( (int)$mwebc->command ) {
 	case 101:	// WHOLE_BKIMG_READY
 		$xmlresp->status='OK' ;
 		flushResp( $xmlresp );
 		$xmlresp = null ;
+		
+		updateCamImg( 1 );
 
 		firebase_rest("units/$fireid/bgimg/$camera", $ts );
 		break;
@@ -162,6 +175,8 @@ switch ( (int)$mwebc->command ) {
 		$xmlresp->status='OK' ;
 		flushResp( $xmlresp );
 		$xmlresp = null ;
+
+		updateCamImg( 2 );
 		
 		firebase_rest("units/$fireid/rocimg/$camera", $ts );
 		break;
@@ -197,6 +212,10 @@ switch ( (int)$mwebc->command ) {
 
 			// try finish the request first
 			$xmlresp->status='OK' ;
+
+			// log resp
+			$log .= "RESP:\n". $xmlresp->asXML(). "\n" ;
+
 			flushResp( $xmlresp );
 			$xmlresp = null ;			
 		
@@ -246,6 +265,9 @@ switch ( (int)$mwebc->command ) {
 			
 			// try finish the request first
 			$xmlresp->status='OK' ;
+			// log resp
+			$log .= "RESP:\n". $xmlresp->asXML(). "\n" ;
+			
 			flushResp( $xmlresp );
 			$xmlresp = null ;			
 			

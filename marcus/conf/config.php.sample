@@ -26,4 +26,6 @@
 	$ms_new    = "C:\\MarcusServerApps\\setup.exe create " ;
 	$ms_clean  = "C:\\MarcusServerApps\\setup.exe remove " ;
 	
+	// $log_service = true ;
+
 ?>

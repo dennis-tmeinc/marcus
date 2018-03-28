@@ -78,22 +78,24 @@ else {
 if( empty( $noclosesession ) )
 	session_write_close();
 
-function session_lock( $lockname = NULL ) 
+function session_lock_filename( $lockname = NULL ) 
 {
 	if( empty( $lockname ) ) {
 		$lockname = session_id() ;
 	}
-	$lockfile = fopen( session_save_path().'/sess_'.$lockname, 'c+' );
+	return session_save_path().'/sess_'.$lockname ;
+}
+
+function session_lock( $lockname = NULL ) 
+{
+	$lockfile = fopen( session_lock_filename( $lockname ), 'c+' );
 	flock( $lockfile, LOCK_EX );
 	return $lockfile ;
 }
 
 function session_trylock( $lockname = NULL ) 
 {
-	if( empty( $lockname ) ) {
-		$lockname = session_id() ;
-	}	
-	$lockfile = fopen( session_save_path().'/sess_'.$lockname, 'c+' );
+	$lockfile = fopen( session_lock_filename( $lockname ), 'c+' );
 	if( flock( $lockfile, LOCK_EX | LOCK_NB ) ){
 		return $lockfile ;
 	}

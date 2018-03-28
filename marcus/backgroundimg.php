@@ -36,39 +36,37 @@ if( $session_logon ){
 		$roc = true ;
 	}
 	if( $roc ) {
-		$firepath = "units/$fireid/rocimg/$camera" ;
+		//$firepath = "units/$fireid/rocimg/$camera" ;
 		$ms_cmd = 2 ;		// ROC_BKIMG_REQUEST
 	}
 	else {
-		$firepath = "units/$fireid/bgimg/$camera" ;
+		//$firepath = "units/$fireid/bgimg/$camera" ;
 		$ms_cmd = 1 ;		// WHOLE_BKIMG_REQUEST
 	}
-	
-	firebase_event( $firepath, function( $event, $data ){
-		static $event_count = 0 ;
-		static $val = NULL ;
-		static $ts = 0 ;
-		global $unitid , $camera, $ms_cmd   ;
-		if( $event == "put" ) {
-			$da = json_decode( $data );
-			if( $da->path == "/" ) {
-				if( $event_count == 0 ) {
-					$val = $da->data ;
-					$ts = time();
-					mservice_cmd( $ms_cmd, $_REQUEST['subid'], $unitid, $camera );
-				}
-				else {
-					if( $da->data != $val ) {
-						return false ;		// new img time stamp detected, stop event loop
-					}
-				}
-			}
-			$event_count++ ;
-		}
-		// let keep alive event to stop event loop
-		return ( time() - $ts < 10 )  ;
-	});
 
+	$mservice_lockfilename = session_lock_filename( "i$ms_cmd.$unitid.$camera" );
+	$mservice_lockfile = fopen( $mservice_lockfilename, 'c+' );
+	
+	flock( $mservice_lockfile, LOCK_SH );
+	$xts = (int)fread( $mservice_lockfile, 100 );
+	flock( $mservice_lockfile, LOCK_UN );
+	
+	mservice_cmd( $ms_cmd, $_REQUEST['subid'], $unitid, $camera );
+
+	// wait maximum 20s for mservice call back 
+	$xt = time();
+	while( time()-$xt < 20 ) {
+		flock( $mservice_lockfile, LOCK_SH );
+		fseek( $mservice_lockfile, 0 );
+		$ts = (int)fread( $mservice_lockfile, 100 );
+		flock( $mservice_lockfile, LOCK_UN );
+		if( $ts!=$xts )  {
+			break ; 
+		}
+		usleep(100000);
+	}
+	fclose( $mservice_lockfile );
+	
 	$conn = new mysqli("p:".$sql_server, $sql_user, $sql_password, $_SESSION['db'] );
 	$sql = "SELECT * FROM camera WHERE mdu_id = '$unitid' AND id = $camera" ;
 	if($result=$conn->query($sql)) {
