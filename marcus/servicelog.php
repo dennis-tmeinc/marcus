@@ -17,15 +17,15 @@ function service_log( $logstring )
 		$l = ftell( $log ) ;
 		if( $l > 200000 ) {
 			fseek( $log, -100000, SEEK_END );
+			// skip a line
 			fgets( $log );
 
 			// rotate log
 			$buf = fread( $log, 120000 ) ;
 			if( $buf ) {
 				fseek( $log, 0, SEEK_SET );
+				ftruncate( $log, 0 );
 				fwrite( $log, $buf );
-				$buf = NULL ;
-				ftruncate( $log, ftell( $log ) );
 			}
 		}
 	}
@@ -34,8 +34,6 @@ function service_log( $logstring )
 		fseek( $log, 0, SEEK_END );
 	}
 
-	fwrite( $log, $logstring );
-	fwrite( $log, "\n" );
-		
+	fwrite( $log, $logstring . "\n" );
 	flock( $log, LOCK_UN) ;
 }	
