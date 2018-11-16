@@ -3,7 +3,7 @@
   "MDUName": "Mr. Jame Nguyen",
   "MDUID": "MDU001",
   "ClientID": "ABC001",
-  "TimeZone": "Toront",
+  "TimeZone": "Toronto",
   "Rooms": [
     {
       "ID": "room001",

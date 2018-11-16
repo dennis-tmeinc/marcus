@@ -1,0 +1,73 @@
+{
+  "AOINames" : [ "Floor", "Bedroom Floor", "Kitchen Floor", "Wash Room Floor", "Living Room Floor", "Bed", "Sofa", "Chair", "Dinning Table", "Door", "Bathtub", "Toilet", "Kitchen Counter", "Oven" ],
+  "DrawColors" : [ "Olive", "Blue", "DeepPink", "Purple", "Navy", "MediumVioletRed", "SaddleBrown", "Maroon", "IndianRed", "BlueViolet", "DarkRed", "MediumBlue", "Crimson", "Brown" ],
+  "EventTypes" : [ "Unknown Event", "ON_FLOOR", "ON_FLOOR_NO_MOVEMENT", "OFF_FLOOR", "ENTERING", "LEAVING", "ON_BED", "OFF_BED", "STANDING", "SITTING", "WALKING", "ENTERING_AT_CONFIGURED_TIME", "LEAVING_AT_CONFIGURED_TIME", "ACTIVE_AT_NIGHT", "FREQUENT_BATH_USE", "ACTIVE_AT_NIGHT", "HAPPINESS_LEVEL" ],
+  "PoseName" : [ "Nose", "Neck", "RShoulder", "RElbow", "RWrist", "LShoulder", "LElbow", "LWrist", "RHip", "RKnee", "RAnkle", "LHip", "LKnee", "LAnkle", "REye", "LEye", "REar", "LEar", "Bkg" ],
+  "CameraTypes" : [ "Top", "Side" ],
+  "UserPrivileges" : {
+    "privileges" : [ "EditPower", "EditAdmin", "EditSensor", "EditUser", "EditSelf", "EditCompany", "EditUnit", "ConfigureUnit", "ConfigureROC", "ConfigureAOI" ],
+    "user_privileges" : {
+      "admin" : {
+        "ConfigureAOI" : true,
+        "ConfigureROC" : true,
+        "ConfigureUnit" : true,
+        "EditAdmin" : false,
+        "EditCompany" : false,
+        "EditPower" : false,
+        "EditSelf" : true,
+        "EditSensor" : true,
+        "EditUnit" : true,
+        "EditUser" : true
+      },
+      "power" : {
+        "ConfigureAOI" : true,
+        "ConfigureROC" : true,
+        "ConfigureUnit" : true,
+        "EditAdmin" : true,
+        "EditCompany" : true,
+        "EditPower" : false,
+        "EditSelf" : true,
+        "EditSensor" : true,
+        "EditUnit" : true,
+        "EditUser" : true
+      },
+      "sensor" : {
+        "ConfigureAOI" : true,
+        "ConfigureROC" : true,
+        "ConfigureUnit" : true,
+        "EditAdmin" : false,
+        "EditCompany" : false,
+        "EditPower" : false,
+        "EditSelf" : true,
+        "EditSensor" : false,
+        "EditUnit" : true,
+        "EditUser" : false
+      },
+      "superPower" : {
+        "ConfigureAOI" : true,
+        "ConfigureROC" : true,
+        "ConfigureUnit" : true,
+        "EditAdmin" : true,
+        "EditCompany" : true,
+        "EditPower" : true,
+        "EditSelf" : true,
+        "EditSensor" : true,
+        "EditUnit" : true,
+        "EditUser" : true
+      },
+      "user" : {
+        "EditSelf" : true
+      }
+    },
+    "usertypes" : [ "superpower", "power", "admin", "sensor", "user" ]
+  },
+  "roomalgs" : {
+    "alpha" : true,
+    "container" : true,
+    "containerQ" : false,
+    "disappear" : true,
+    "statue" : false,
+    "wall2Floor" : true
+  },
+  "subjectStatus" : [ "Unknown", "Standing", "Lying On Floor", "Lying On Bed", "Sitting", "Walking", "Fallen" ]
+}

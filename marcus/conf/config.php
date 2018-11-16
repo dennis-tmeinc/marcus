@@ -13,11 +13,11 @@
 	$map_credentials="AnC6aHa2J8jWAluq14HQu6HDH1cDshGtPEPrYiotanIf-q6ZdoSiVGd96wzuDutw" ;
 
 	// session 
-	$session_path= "r:\\session";
+	$session_path= "r:\\marcus\\session";
 	$session_timeout=900 ;
 	
 	// cache dir
-	$cache_dir = "r:\\cache";
+	$cache_dir = "r:\\marcus\\cache";
 	
 	$remote_fileserver = "http://64.40.243.196/marcus/fileservice.php" ;	
 

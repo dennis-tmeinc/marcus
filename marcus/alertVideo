@@ -1,0 +1,106 @@
+<?php
+// alertVideo - output video data for alert email
+// Request:
+//      vid : video clip id
+//      cid:  Client ID
+// Return:
+//      mp4 stream 
+// By Dennis Chen @ TME	 - 2018-06-22
+// Copyright 2018 Toronto MicroElectronics Inc.
+//
+
+include_once 'conf/config.php' ;
+include_once 'vfile.php' ;
+
+header("Content-Type:video/mp4") ;
+
+// main database
+@$conn = new mysqli($sql_server, $sql_user, $sql_password, $sql_database );
+
+// get client database
+
+$db = $sql_database ;
+$cliendid = "x" ;
+$videoid = "x" ;
+if( !empty($_REQUEST['cid']) ) {
+	$cliendid = $conn->escape_string($_REQUEST['cid']);
+}
+if( !empty($_REQUEST['vid']) ) {
+	$videoid = $conn->escape_string($_REQUEST['vid']);
+}
+
+$sql = "SELECT * FROM security WHERE ClientId = '$cliendid' " ;
+$db = " " ;
+if( $result=$conn->query($sql) ) {
+	if( $row = $result->fetch_array(MYSQLI_ASSOC) ) {
+		$db = $row['DBName'] ;
+	}
+}
+
+// reopen client database
+@$conn = new mysqli($sql_server, $sql_user, $sql_password, $db);
+
+$mp4file="" ;
+$sql = "SELECT * FROM `animation` WHERE `videoId` = '$videoid' AND `tmExpire` > now() ;" ;
+if($result=$conn->query($sql)) {
+	if( $row = $result->fetch_assoc() ) {
+		$mp4file=$row['videoPath'];
+	}
+	$result->free();
+}
+
+if( !empty( $mp4file ) ) {
+	$f = vfile_open( $mp4file ) ;
+	if( !empty($f ) ) {
+		header( "Accept-Ranges: bytes" );
+		vfile_seek( $f, 0, SEEK_END );
+		$fs = vfile_tell( $f );
+		if( !empty( $_SERVER['HTTP_RANGE'] ) ) {
+			$range = sscanf($_SERVER['HTTP_RANGE'] , "bytes=%d-%d");
+			if( empty($range[1]) ) {
+				// max len
+				$lastpos = $fs - 1 ;
+			}
+			else {
+				$lastpos = $range[1] ;
+			}
+			$offset = $range[0] ;
+			$len = $lastpos - $offset + 1 ;
+			header( sprintf("Content-Range: bytes %d-%d/%d", $offset, $lastpos, $fs ));
+			header( "HTTP/1.1 206 Partial Content" );
+		}
+		else {
+			$offset = 0 ;
+			$len = $fs ;
+		}
+
+		if( $len>0 ) {
+			header("Content-Length: $len" );
+			vfile_seek( $f, $offset );
+
+			while( $len > 0 ) {
+				set_time_limit(10);
+				$r = $len ;
+				if( $r > 8192 ) {
+					$r = 8192 ;
+				}
+				$da = vfile_read( $f, $r ) ;
+				if( strlen( $da ) > 0 ) {
+					echo $da ;
+					$len -= $r ;
+				}
+				else {
+					break;
+				}
+			}
+		}
+		else {
+			header("Content-Length: 0" );
+		}
+
+		vfile_close( $f );
+	}
+}
+
+return ;
+?>

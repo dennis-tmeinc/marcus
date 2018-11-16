@@ -119,11 +119,17 @@ $( function() {
 
 	// default room algs ???
 	var roomAlgs = {};
+	var cameraTypes = [];
+
+	$.getJSON("loadoptions.php", function( resp ){
+		if( resp.roomalgs ) {
+			roomAlgs = resp.roomalgs ;
+		}
+		if( resp.CameraTypes ) {
+			cameraTypes = resp.CameraTypes ;
+		}
+	});
 	
-	firebase.marcus_get( '/units/options/roomalgs', function(val){
-		roomAlgs = val ;
-	} );
- 	
 	function updateAlgs( algs ) {
 		var i ;
 		for (i in roomAlgs ) {
@@ -135,7 +141,6 @@ $( function() {
 		}
 		return roomAlgs ;
 	}
-
 	
     function addRoomTab( conf, idx ) {
 		var room = conf.rooms[idx] ;
@@ -227,6 +232,17 @@ $( function() {
 		$('div#' + id).find("select[name='camera_room']").html( html );
 		if( camera.roomIndex >= conf.rooms.length ) camera.roomIndex = 0 ;
 		$('div#' + id).find("select[name='camera_room']").val( camera.roomIndex );
+		
+		html='';
+		for( var i in cameraTypes ){
+			html += '<option>' + cameraTypes[i] + '</option>' ;
+		}
+		var sel = $('div#' + id).find("select[name='camera_type']") ;
+		sel.html( html );
+		if( !camera.type )
+			sel.val( cameraTypes[0] );
+		else
+			sel.val( camera.type );
 		
 		$( ".tabs" ).tabs("refresh");
     }
@@ -327,6 +343,7 @@ $( function() {
 						camera.enable = camtab.find("input[name='camera_enable']").prop('checked' );
 						camera.name =   camtab.find("input[name='camera_name']").val();
 						camera.resolution =camtab.find("select[name='camera_resolution']").val();
+						camera.type =camtab.find("select[name='camera_type']").val();
 
 						camera.fps =    parseInt(camtab.find("select[name='camera_framerate']").val());
 						if( ! Number.isInteger(camera.fps) ) 
@@ -1458,6 +1475,9 @@ $( function() {
 		</tr>
 		<tr>
 			<td>Room:</td><td><select name="camera_room"></select></td>
+		</tr>
+		<tr>
+			<td>Camera Type:</td><td><select name="camera_type"></select></td>
 		</tr>
 		</table>
 	  </div>
