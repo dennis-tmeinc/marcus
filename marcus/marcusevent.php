@@ -298,18 +298,19 @@ switch ( (int)$mwebc->command ) {
 							if( empty( $eventsum[ $subtype ] ) ) {
 								$eventsum[ $subtype ] = 1 ;
 							}
-							else {
-								$eventsum[ $subtype ] ++ ;
-							}
+							//else {
+								//$eventsum[ $subtype ] ++ ;
+							//}
 						}
 						foreach( $eventsum as $key => $value ) {
 							if( !empty( $subjectStatus[ $key ] ) ) {
-								$eventStr .= "&nbsp;&nbsp;&nbsp;&nbsp;".$subjectStatus[ $key ]." :" ;
+								// $eventStr .= "&nbsp;&nbsp;&nbsp;&nbsp;".$subjectStatus[ $key ]." :" ;
+								$eventStr .= "&nbsp;&nbsp;&nbsp;&nbsp;".$subjectStatus[ $key ] ;
 							}
-							else {
-								$eventStr .= "&nbsp;&nbsp;&nbsp;&nbsp;Unknown :";
-							}
-							$eventStr .= " $value <br/>" ;
+							// else {
+							//	$eventStr .= "&nbsp;&nbsp;&nbsp;&nbsp;Unknown :";
+							// }
+							// $eventStr .= " $value <br/>" ;
 						}
 					}
 				}

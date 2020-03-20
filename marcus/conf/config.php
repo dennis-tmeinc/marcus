@@ -3,7 +3,7 @@
 	// $sql_server="192.168.42.98" ;
 	$sql_server="64.40.243.196" ;
 	$sql_user="admin" ;
-	$sql_password="" ;
+	$sql_password="Yicu2k19raptors" ;
 	$sql_database="marcusmaindb" ;
 	
 	// List of timezone: http://php.net/manual/en/timezones.php
@@ -23,7 +23,7 @@
 
 	// marcus service (by Tongrui)
 	$marcus_service = "http://" . $sql_server . ":48002/MService" ;
-	$mservice_callback = "http://192.168.42.126:80/marcus/marcusevent.php" ;
+	$mservice_callback = "http://dennispc.us.to:80/marcus/marcus/marcusevent.php" ;
 
 	// script/excutable to create/remove com
 	$ms_new    = "C:\\MarcusServerApps\\setup.exe create " ;

@@ -30,6 +30,10 @@ function mdueditor( canvas ) {
 	this.showROC = false ;
 	this.showAOI = false ;
 	
+	var ctx = canvas.getContext('2d');	// canvas context
+	ctx.lineJoin="round" ;
+	ctx.lineCap ="round" ;
+	
 	if ( ! mdueditor.poly_colors ) {
 		mdueditor.poly_colors = ["red","yellow","green"] ;
 		load_list( "conf/color_vals", function( list ) {
@@ -38,7 +42,6 @@ function mdueditor( canvas ) {
     }
 
 	function paint_bkground() {
-		var ctx = canvas.getContext('2d');
 		if( bgImg && bgImg.complete && bgImg.width > 50 )
 			ctx.drawImage(bgImg , 0, 0, canvas.width, canvas.height );			
 		else 
@@ -49,7 +52,6 @@ function mdueditor( canvas ) {
 		if( polys.length > 0 && polys[0].points ) {
 			var points = polys[0].points ;
 			if( points.length > 2 ) {
-				var ctx = canvas.getContext('2d');
 				var w = canvas.width ;
 				var h = canvas.height ;		
 				ctx.beginPath();
@@ -66,7 +68,6 @@ function mdueditor( canvas ) {
 	}
 	
 	function paint_aoi() {
-		var ctx = canvas.getContext('2d');
 		var w = canvas.width ;
 		var h = canvas.height ;
 		for(var p=1; p<polys.length; p++ ) {
@@ -87,7 +88,7 @@ function mdueditor( canvas ) {
 					ctx.lineTo(points[i].x * w, points[i].y * h );
 				}
 				if( aoi_mode == 2 && p==polys.length-1 ) {
-					if(( points.length>2 &&  Math.pow( mousePos.x-points[0].x, 2 ) +  Math.pow(mousePos.y-points[0].y , 2 ) < 0.001 ) || points.length>=20 ){
+					if(( points.length>2 &&  Math.pow( mousePos.x-points[0].x, 2 ) +  Math.pow(mousePos.y-points[0].y , 2 ) < 0.001 ) || points.length>=1000 ){
 						ctx.lineWidth=5;
 						ctx.closePath();
 						poly.closing = true ;
@@ -112,13 +113,14 @@ function mdueditor( canvas ) {
 		}
 	}
 		
+	var pose ;		// single people pose array
+	
 	function paint_people() {
 		// draw POSE lines
 		if( valPose && valPose.people ) {
-			var ctx = canvas.getContext('2d');
 			var p ;
 			for( p=0; p<valPose.people.length; p++ ) {
-				var pose = valPose.people[p] ;
+				pose = valPose.people[p] ;
 
 				function pose_line( f, t ) {
 					if( pose[f].x > 0 && pose[t].x > 0 ) {
@@ -189,6 +191,409 @@ function mdueditor( canvas ) {
 			}
 		}
 	};
+
+	// pose index
+	const p_nose = 0 ;
+	const p_neck = 1 ;
+	
+	const p_l_eye = 15 ;
+	const p_l_ear = 17 ;
+	const p_l_shoulder = 5 ;
+	const p_l_elbow = 6 ;
+	const p_l_wrist = 7 ;
+	const p_l_hip = 11 ;
+	const p_l_knee = 12 ;
+	const p_l_ankle = 13 ;
+
+	const p_r_eye = 14 ;
+	const p_r_ear = 16 ;
+	const p_r_shoulder = 2 ;
+	const p_r_elbow = 3 ;
+	const p_r_wrist = 4 ;
+	const p_r_hip = 8 ;
+	const p_r_knee = 9 ;
+	const p_r_ankle = 10 ;
+	
+	var trunksize = 100 ;
+	
+	function trunkheight() {
+		var top =0;
+		var bottom = 50 ;
+		if( pose[p_neck].x > 0 ) {
+			top = pose[p_neck].y ;
+		}
+		else if( pose[p_l_shoulder].x > 0 ) {
+			top = pose[p_l_shoulder].y ;
+		}
+		else if( pose[p_r_shoulder].x > 0 ) {
+			top = pose[p_r_shoulder].y ;
+		}
+		if( pose[p_l_hip].x > 0 ) {
+			bottom = pose[p_l_hip].y ;
+		}
+		else if( pose[p_r_hip].x > 0 ) {
+			bottom = pose[p_r_hip].y ;
+		}
+		return Math.abs( bottom-top);
+	}
+
+	function pose_line( f, t ) {
+		if( pose[f].x > 1 && pose[t].x > 1 ) {
+			ctx.beginPath();
+			ctx.moveTo( pose[f].x , pose[f].y );
+			ctx.lineTo( pose[t].x , pose[t].y );
+			ctx.stroke();
+		}
+	}
+
+	function pose_dot( d, r ) {
+		if( pose[d].x > 1 ) {
+			if( r < 1 )
+				r=1 ;
+			ctx.beginPath();
+			ctx.moveTo( pose[d].x + r, pose[d].y  );
+			ctx.arc( pose[d].x , pose[d].y , r, 0, 2 * Math.PI);
+			ctx.fill();
+		}
+	}	
+	
+	function draw_skel() {
+		// draw all lines
+		var lines = [
+			[14,15],
+			[16,14],
+			[15,17],
+			[14,0],
+			[15,0],
+			[0, 1],
+			[1,2],
+			[1,5],
+			[2,3],
+			[3,4],
+			[5,6],
+			[6,7],
+			[5,11],
+			[5,8],
+			[2,8],
+			[2,11],
+			[11,8],
+			[11,12],
+			[12,13],
+			[8,9],
+			[9,10]
+		];
+		
+		ctx.lineWidth=3;
+		var i ;
+		for( i=0; i<lines.length; i++ ) {
+			pose_line( lines[i][0], lines[i][1] );
+		}
+		for( i = 0; i<pose.length; i++ ) {
+			pose_dot( i, trunksize/20 );
+		}
+	}
+
+	function distance( a, b )
+	{
+		return Math.sqrt( Math.pow( a.x - b.x, 2) +  Math.pow( a.y - b.y , 2));
+	}
+	 
+	 function draw_head()
+	 {
+	    var ss ;
+		var head = {"x":0,"y":0, "r": 0};
+		if( pose[p_l_ear].x>1 && pose[p_r_ear].x>1 ) {
+			head.x = ( pose[p_l_ear].x + pose[p_r_ear].x )/2 ;
+			head.y = ( pose[p_l_ear].y + pose[p_r_ear].y )/2 ;
+			head.r = distance(  pose[p_l_ear],  pose[p_r_ear] )/2;
+			// draw head
+			ctx.beginPath();
+			ctx.moveTo( head.x + head.r, head.y );
+			ctx.arc( head.x , head.y , head.r, 0, 2 * Math.PI);
+			ctx.fill();			
+
+		}
+		else if( pose[p_nose].x>1 ) {
+			head.x = pose[p_nose].x ;
+			head.y = pose[p_nose].y ;
+			head.r = trunksize * 0.2 ;
+		}
+		else {
+			return ;
+		}
+
+		// neck
+		if( head.x > 1 && pose[ p_neck].x>1) {
+			ss = ctx.lineWidth ;
+			if( head.r>1) 
+				ctx.lineWidth = head.r / 1.2  ;
+			else 
+				ctx.lineWidth = 3 ;
+			ctx.beginPath();
+			ctx.moveTo( head.x , head.y );
+			ctx.lineTo( pose[p_neck].x, pose[p_neck].y);
+			ctx.stroke();
+			ctx.lineWidth = ss ;
+		}
+		
+		// ears
+		if( pose[ p_l_ear ].x> 0 ) {
+			pose_dot( p_l_ear, head.r/4 );
+		}
+		if( pose[ p_r_ear ].x> 0 ) {
+			pose_dot( p_r_ear, head.r/4 );
+		}
+		
+		// left eye
+		if( pose[ p_l_eye ].x> 0 ) {
+			ss = ctx.fillStyle ;
+			ctx.fillStyle = "black" ; 	
+			pose_dot( p_l_eye, head.r/8 );
+			ctx.fillStyle = ss ; ;
+		}
+		// right eye
+		if( pose[ p_r_eye ].x> 0 ) {
+			ss = ctx.fillStyle ;
+			ctx.fillStyle = "black" ; 	
+			pose_dot( p_r_eye, head.r/8 );
+			ctx.fillStyle = ss ; ;
+		}
+
+		// nose
+		if( pose[p_nose].x > 1 ) {
+			ss = ctx.fillStyle ;
+			ctx.fillStyle = "gray" ; 	
+			pose_dot( p_nose, head.r/10 );
+			ctx.fillStyle = ss ; ;
+
+			// draw mouth
+			if( pose[ p_l_eye ].x > 1 && pose[ p_r_eye ].x> 1 ) {
+				var cx = (pose[ p_l_eye ].x + pose[ p_r_eye ].x ) /2 ;
+				var cy = (pose[ p_l_eye ].y + pose[ p_r_eye ].y ) /2 ;
+				var mouth={};
+				mouth.x = pose[ p_nose ].x + (pose[ p_nose ].x - cx) / 2 ;
+				mouth.y = pose[ p_nose ].y + (pose[ p_nose ].y - cy) / 2 ;
+
+				ss = ctx.strokeStyle ;
+				ctx.strokeStyle = "gray" ; 	
+				ctx.lineWidth=1;
+				ctx.beginPath();
+				var r = head.r/5 ;
+				ctx.moveTo( mouth.x + r, mouth.y );
+				ctx.arc( mouth.x , mouth.y, r, 0, Math.PI, false);
+				ctx.stroke();
+				ctx.strokeStyle = ss ;
+			}
+		}
+	 }
+	 
+	function draw_trunk() {
+		if( pose[p_l_shoulder].x>0 
+			&& pose[p_r_shoulder].x>0 
+			&& pose[p_l_hip].x>0 
+			&& pose[p_r_hip].x>0  ) {
+				
+			trunksize = trunkheight() ;
+
+			var c1 = {};
+			var c2 = {};
+
+			ctx.beginPath();
+			ctx.moveTo( pose[p_l_shoulder].x, pose[p_l_shoulder].y);
+			if( pose[p_nose].x>0 && pose[p_neck].x>0 ) {
+				c1.x = (pose[p_nose].x + pose[p_neck].x)/2 ;
+				c1.y = (pose[p_nose].y + pose[p_neck].y)/2 ;
+				ctx.quadraticCurveTo(c1.x, c1.y, pose[p_r_shoulder].x, pose[p_r_shoulder].y);
+			}
+			else {
+				ctx.lineTo( pose[p_r_shoulder].x, pose[p_r_shoulder].y);
+			}
+
+			// right side
+			var dx = pose[p_l_shoulder].x - pose[p_r_hip].x ;
+			var dy = pose[p_l_shoulder].y - pose[p_r_hip].y ;
+			
+			c1.x = pose[p_r_shoulder].x - dx / 10 ;
+			c1.y = pose[p_r_shoulder].y - dy / 10 ;
+			c2.x = pose[p_r_hip].x - dx / 10 ;
+			c2.y = pose[p_r_hip].y - dy / 10 ;
+			ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, pose[p_r_hip].x, pose[p_r_hip].y);
+			
+			// hip
+			dx = pose[p_r_hip].x - pose[p_l_hip].x ;
+			c1.x = pose[p_r_hip].x - dx / 5 ;
+			c1.y = pose[p_r_hip].y - dy / 5 ;
+			c2.x = pose[p_l_hip].x + dx / 5 ;
+			c2.y = pose[p_l_hip].y - dy / 5 ;
+			ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, pose[p_l_hip].x, pose[p_l_hip].y);
+			
+			// left side
+			dx = pose[p_r_shoulder].x - pose[p_l_hip].x ;
+			dy = pose[p_r_shoulder].y - pose[p_l_hip].y ;
+			
+			c1.x = pose[p_l_shoulder].x - dx / 10 ;
+			c1.y = pose[p_l_shoulder].y - dy / 10 ;
+			c2.x = pose[p_l_hip].x - dx / 10 ;
+			c2.y = pose[p_l_hip].y + dy / 10 ;
+			ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, pose[p_l_shoulder].x, pose[p_l_shoulder].y);
+			
+			ctx.closePath();
+			
+			ctx.fill();
+			
+		}
+	}		
+
+	function arm( d1, d2 )
+	{
+		if( d1.x<=1 || d2.x<=1 )
+			return;
+		
+		 var angle = Math.atan( (d2.y-d1.y)/(d2.x-d1.x) );
+		 var width = trunksize / 10 ;
+
+		 var rang = angle - Math.PI/2 ;
+		 var d3 = {"x":0,"y":0};
+		 var d4 = {"x":0,"y":0};
+		 
+		 ctx.beginPath();
+		 
+		 d3.x = d1.x ;
+		 d3.y = d1.y ;
+		 d3.y += width * Math.sin( angle - Math.PI/2 );
+		 d3.x += width * Math.cos( angle - Math.PI/2 );
+		 d4.x = d2.x ;
+		 d4.y = d2.y ;
+		 d4.y += width * Math.sin( angle - Math.PI/2 ) / 1.5;
+		 d4.x += width * Math.cos( angle - Math.PI/2 ) / 1.5;
+		 
+		// This is where the curve begins (P0)
+		ctx.moveTo(d1.x, d1.y);
+		
+		ctx.bezierCurveTo(d3.x, d3.y, d4.x, d4.y, d2.x, d2.y );
+
+		 d3.x = d2.x ;
+		 d3.y = d2.y ;
+		 d3.y += width * Math.sin( angle + Math.PI/2 ) / 1.5;
+		 d3.x += width * Math.cos( angle + Math.PI/2 ) / 1.5;
+		 d4.x = d1.x ;
+		 d4.y = d1.y ;
+		 d4.y += width * Math.sin( angle + Math.PI/2 );
+		 d4.x += width * Math.cos( angle + Math.PI/2 );
+		 
+		// This is where the curve begins (P0)
+		ctx.bezierCurveTo(d3.x, d3.y, d4.x, d4.y, d1.x, d1.y );
+
+		ctx.fill();
+		
+	}
+
+	// d1: hip, d2: knee, d3 rhip
+	function leg( d1, d2, d3) {
+		
+		if( d3==null || d3.x<=1 ) {
+			return arm( d1, d2 )
+		}
+		
+		if( d1.x<=1 || d2.x <= 1 )
+			return ;
+		
+		var dx = d3.x - d1.x ;
+		var dy = d3.y - d1.y ;
+
+		ctx.beginPath();
+		
+		var c1 = {};
+		var d12 = {};
+		
+		c1.x = d1.x + dx/1.5 ;
+		c1.y = d1.y + dy/1.5 ;
+		d12.x = d2.x + dx/5 ;
+		d12.y = d2.y + dy/5 ;
+		
+		ctx.moveTo(d1.x, d1.y);
+		
+		ctx.bezierCurveTo(c1.x, c1.y, d12.x, d12.y, d2.x, d2.y );
+
+		c1.x = d2.x - dx/3 ;
+		c1.y = d2.y - dy/3 ;
+		d12.x = d1.x - dx/3 ;
+		d12.y = d1.y - dy/3 ;
+		
+		ctx.bezierCurveTo(c1.x, c1.y, d12.x, d12.y, d1.x, d1.y );
+		ctx.fill();
+	}
+		
+	function draw_people(){
+	 
+		draw_trunk();
+		draw_head();
+		
+		arm( pose[p_l_shoulder], pose[p_l_elbow] );
+		arm( pose[p_r_shoulder], pose[p_r_elbow] );
+		arm( pose[p_l_elbow], pose[p_l_wrist] );
+		arm( pose[p_r_elbow], pose[p_r_wrist] );
+
+		leg( pose[p_l_hip], pose[p_l_knee], pose[p_r_hip] );
+		leg( pose[p_r_hip], pose[p_r_knee], pose[p_l_hip] );
+		leg( pose[p_l_knee], pose[p_l_ankle], null );
+		leg( pose[p_r_knee], pose[p_r_ankle], null );
+
+   }
+	
+	function paint_people_n() {
+
+		if( valPose && valPose.people ) {
+			var p ;
+			for( p=0; p<valPose.people.length; p++ ) {
+				pose = valPose.people[p] ;
+				
+				// set ctx color
+				ctx.strokeStyle = mdueditor.poly_colors[ p%mdueditor.poly_colors.length ] ; 		
+				ctx.fillStyle = ctx.strokeStyle ;
+				ctx.lineWidth=3;
+				
+				// scale all pose pointer
+				var i ;
+				for( i=0; i<pose.length; i++ ) {
+					if( pose[i].x > 1 && pose[i].y > 1 ) {
+						pose[i].x = pose[i].x*xscale ;
+						pose[i].y = pose[i].y*yscale ;
+					}
+					else {
+						pose[i].x = 0 ;
+						pose[i].y = 0 ;						
+					}
+				}
+				
+				// fix missing pose 
+				if( pose[p_l_shoulder].x< 1 && pose[p_r_shoulder].x > 0 ) {
+					pose[p_l_shoulder].x =  pose[p_r_shoulder].x ;
+					pose[p_l_shoulder].y =  pose[p_r_shoulder].y ;
+				}
+				if( pose[p_neck].x < 1 ) {
+					pose[p_neck].x = (pose[p_r_shoulder].x + pose[p_r_shoulder].x)/2 ;
+					pose[p_neck].y = (pose[p_r_shoulder].y + pose[p_r_shoulder].y)/2 ;
+				}
+				if( pose[p_r_shoulder].x<=0 && pose[p_l_shoulder].x > 0 ) {
+					pose[p_r_shoulder].x =  pose[p_l_shoulder].x ;
+					pose[p_r_shoulder].y =  pose[p_l_shoulder].y ;
+				}			
+				if( pose[p_l_hip].x<=0 && pose[p_r_hip].x > 0 ) {
+					pose[p_l_hip].x =  pose[p_r_hip].x ;
+					pose[p_l_hip].y =  pose[p_r_hip].y ;
+				}
+				if( pose[p_r_hip].x<=0 && pose[p_l_hip].x > 0 ) {
+					pose[p_r_hip].x =  pose[p_l_hip].x ;
+					pose[p_r_hip].y =  pose[p_l_hip].y ;
+				}
+				
+				// draw_skel() ;
+				draw_people();
+				
+			}
+		}
+	}
 		
 	// update display
 	var paintId	= null ;
@@ -196,7 +601,7 @@ function mdueditor( canvas ) {
 	{
 		paint_bkground();
 		if( _this.showPose )
-			paint_people();
+			paint_people_n();
 		if( _this.showROC )
 			paint_roc();
 		if( _this.showAOI )
